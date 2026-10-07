@@ -38,7 +38,8 @@ body { margin: 0; background: var(--fondo); color: var(--tinta); font: 15.5px/1.
 .privado { text-align: center; color: var(--gris); font-size: 13.5px; margin: 8px 0 0; }
 .que-hay { margin-top: 22px; }
 .que-hay > p { text-align: center; color: var(--gris); margin: 0 0 10px; font-size: 14.5px; }
-.tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tres { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 960px) { .tres { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tres div { background: var(--sup); border: 1px solid var(--linea); border-top: 4px solid var(--azul); border-radius: 0 0 12px 12px; padding: 14px 16px; display: grid; gap: 4px; }
 .tres b { color: var(--azul); font-size: 16px; }
 .tres span { color: var(--gris); font-size: 14px; }
@@ -145,6 +146,38 @@ td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
 .revisar .motivo.frena { border-left-color: var(--mal); }
 .pasos { margin: 0; padding-left: 20px; color: var(--gris); font-size: 14px; }
 
+.terreno { grid-template-columns: minmax(0, 1fr) auto; align-items: center; background: #FFFBEF; border-color: #EAD9A8; }
+.terreno label { display: grid; gap: 4px; }
+.terreno label b { color: var(--vosc); font-size: 16px; }
+.terreno label span { color: var(--gris); font-size: 14px; }
+.monto-input { display: flex; align-items: center; gap: 6px; font-size: 18px; color: var(--gris); }
+.monto-input input { font: 600 18px var(--num); width: 170px; padding: 9px 10px; border: 1.5px solid var(--linea); border-radius: 10px; text-align: right; }
+@media (max-width: 640px) { .terreno { grid-template-columns: 1fr; } }
+.titular { margin: 0; font-size: 18px; line-height: 1.45; color: var(--vosc); background: var(--sup); border-left: 5px solid var(--verde); padding: 12px 16px; border-radius: 0; }
+.titular small { display: block; font-size: 13.5px; color: var(--gris); margin-top: 4px; }
+.leyenda { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; color: var(--gris); }
+.leyenda i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.graf-wrap { position: relative; }
+.graf-wrap svg { display: block; width: 100%; height: auto; }
+.graf-wrap .tip { bottom: auto; transform: translate(-50%, 0); }
+.cat { border-top: 1px solid var(--linea); }
+.cat:first-child { border-top: 0; }
+.cat > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 2fr) 96px 48px; gap: 12px; align-items: center; padding: 9px 4px; font-size: 14.5px; }
+.cat > summary::-webkit-details-marker { display: none; }
+.cat[open] > summary { background: #EEF4FA; border-radius: 8px; }
+.cat .barra-h { height: 12px; background: #ECF1F6; border-radius: 3px; overflow: hidden; }
+.cat .barra-h i { display: block; height: 100%; background: var(--azul); border-radius: 0 3px 3px 0; }
+.cat .m { text-align: right; font-family: var(--num); }
+.cat .p { text-align: right; color: var(--gris); font-size: 13px; }
+.cat .scroll { padding: 4px 4px 12px; }
+@media (max-width: 640px) { .cat > summary { grid-template-columns: minmax(0, 1fr) 90px; } .cat .barra-h, .cat .p { display: none; } }
+.dos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .dos { grid-template-columns: 1fr; } }
+.renglon { display: flex; justify-content: space-between; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--linea); font-size: 14.5px; }
+.renglon:first-child { border-top: 0; }
+.renglon b { font-family: var(--num); font-weight: 600; white-space: nowrap; }
+.renglon.total { border-top: 2px solid var(--tinta); font-weight: 700; }
+#revisar-gastos h3 { margin: 10px 0 6px; font-size: 16px; color: var(--vosc); }
 footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
 @media (max-width: 760px) {
   details.fila > summary { grid-template-columns: minmax(0, 1fr) auto; }
@@ -171,11 +204,12 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
     </label>
     <p class="privado">El Excel no se sube a internet: se lee aquí mismo, en su computadora.</p>
     <div class="que-hay">
-      <p>Al cargar el Excel se abren tres herramientas:</p>
+      <p>Al cargar el Excel se abren estas herramientas:</p>
       <div class="tres">
         <div><b>Cobranza</b><span>Quién va al día, quién está atrasado, cuánto y a quién llamar primero.</span></div>
         <div><b>Estados de cuenta</b><span>El PDF de cada cliente con el logo, listo para enviar.</span></div>
-        <div><b>Revisar en el Excel</b><span>Lo que no cuadra en las hojas, para corregirlo antes de enviar.</span></div>
+        <div><b>Gastos e inversión</b><span>Cuánto se ha invertido, en qué y cuánto se ha recuperado con lo cobrado.</span></div>
+        <div><b>Revisar en el Excel</b><span>Lo que no cuadra en las hojas, para corregirlo a tiempo.</span></div>
       </div>
     </div>
   </section>
@@ -196,6 +230,7 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
       <div class="tabs" role="tablist" aria-label="Herramientas">
         <button role="tab" id="t-cobranza" aria-controls="p-cobranza" aria-selected="true">Cobranza</button>
         <button role="tab" id="t-estados" aria-controls="p-estados" aria-selected="false">Estados de cuenta</button>
+        <button role="tab" id="t-gastos" aria-controls="p-gastos" aria-selected="false">Gastos e inversión</button>
         <button role="tab" id="t-revisar" aria-controls="p-revisar" aria-selected="false">Revisar en el Excel<span class="n" id="n-revisar"></span></button>
       </div>
 
@@ -246,12 +281,47 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
         </div>
       </section>
 
+      <!-- GASTOS E INVERSIÓN -->
+      <section class="panel" id="p-gastos" role="tabpanel" aria-labelledby="t-gastos" hidden>
+        <div class="card terreno">
+          <label for="terreno"><b>¿Cuánto costó el terreno?</b>
+            <span>La hoja «Gastos» no incluye la compra del terreno. Escríbalo aquí (y cualquier otra inversión que no esté anotada) para que la recuperación se calcule completa. Se queda guardado solo en esta computadora.</span></label>
+          <div class="monto-input"><span>$</span><input type="number" id="terreno" min="0" step="100" placeholder="0" inputmode="decimal"></div>
+        </div>
+        <p class="titular" id="g-titular"></p>
+        <div class="stats" id="g-stats"></div>
+        <div class="card">
+          <h2>Lo invertido contra lo que ha entrado</h2>
+          <p class="sub">Acumulado mes a mes. Donde la línea azul pasa a la verde, lo cobrado ya cubrió lo invertido.</p>
+          <div class="leyenda"><span><i style="background:var(--azul)"></i>Ha entrado por ventas</span><span><i style="background:#5E8F2A"></i>Invertido en el proyecto</span></div>
+          <div class="graf-wrap" id="g-graf"></div>
+        </div>
+        <div class="card">
+          <h2>En qué se ha gastado</h2>
+          <p class="sub">Solo gastos del proyecto. Toque una categoría para ver cada gasto.</p>
+          <div id="g-categorias"></div>
+        </div>
+        <div class="dos">
+          <div class="card">
+            <h2>A nombre de quién</h2>
+            <p class="sub">Según la columna D de la hoja «Gastos». Conviene confirmar si indica quién lo pagó.</p>
+            <div id="g-quien"></div>
+          </div>
+          <div class="card">
+            <h2>Anotado en Gastos, pero no es del proyecto</h2>
+            <p class="sub">Está en la hoja pero no cuenta como inversión en los lotes.</p>
+            <div id="g-fuera"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- REVISAR -->
       <section class="panel" id="p-revisar" role="tabpanel" aria-labelledby="t-revisar" hidden>
         <div class="card">
           <h2>Revisar en el Excel</h2>
           <p class="sub">Lo que no cuadra en las hojas. Lo marcado en rojo cambia el saldo: ese estado de cuenta no se genera hasta corregirlo.</p>
           <ul class="revisar" id="revisar"></ul>
+          <div id="revisar-gastos"></div>
           <ol class="pasos">
             <li>Corrija la hoja en el Excel y guárdelo.</li>
             <li>Toque «Cargar otro Excel» y vuelva a cargarlo.</li>
@@ -275,7 +345,7 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
   var PLANES = { credito: "Crédito 10 años", sin_intereses: "Sin intereses", contado: "Contado" };
   var MES_C = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
-  var libro = null, corte = null, nombreArchivo = "", datos = null;
+  var libro = null, corte = null, nombreArchivo = "", datos = null, gastosDatos = null;
   var filtro = "cobrar", texto = "", conGrupo = false;
   var LOGO = null, LOGO_W = 1, LOGO_H = 1;
 
@@ -318,10 +388,11 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
     var listos = datos.contratos.filter(function (c) { return !c.bloqueos.length; }).length;
     document.getElementById("nombre-archivo").textContent = nombreArchivo;
     document.getElementById("resumen-archivo").textContent = datos.contratos.length + " lotes vendidos · " + datos.libres + " sin vender · " + listos + " estados de cuenta listos";
-    var conAviso = datos.contratos.filter(function (c) { return c.revisar.length; }).length;
+    gastosDatos = L.leerGastos(libro, corte);
+    var conAviso = datos.contratos.filter(function (c) { return c.revisar.length; }).length + (gastosDatos ? gastosDatos.avisos.length : 0);
     document.getElementById("n-revisar").textContent = conAviso || "";
     document.getElementById("n-revisar").hidden = !conAviso;
-    pintarStats(); pintarLista(); pintarFlujo(); pintarEstados(); pintarRevisar();
+    pintarStats(); pintarLista(); pintarFlujo(); pintarEstados(); pintarRevisar(); pintarGastos(); pintarRevisarGastos();
   }
 
   // ── Cobranza ──
@@ -556,14 +627,172 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
     });
   }
 
+  // ── Gastos e inversión ──
+  var CLAVE_TERRENO = "ldc-costo-terreno";
+  function leerTerreno() { try { return Math.max(0, Number(localStorage.getItem(CLAVE_TERRENO)) || 0); } catch (e) { return 0; } }
+  function mesLargo(k) { var p = k.split("-"); return L.MESES[+p[1] - 1] + " de " + p[0]; }
+  function sumaMeses(k, n) { var p = k.split("-"); return L.iso(L.sumarMeses(new Date(Date.UTC(+p[0], +p[1] - 1, 1)), n)).slice(0, 7); }
+
+  function pintarGastos() {
+    var box = document.getElementById("p-gastos");
+    if (!gastosDatos) { document.getElementById("g-titular").textContent = "Este Excel no tiene la hoja «Gastos»."; return; }
+    var terreno = leerTerreno();
+    var inp = document.getElementById("terreno"); if (document.activeElement !== inp) inp.value = terreno || "";
+    var gs = gastosDatos.gastos, proy = gs.filter(function (g) { return !g.fuera; }), fuera = gs.filter(function (g) { return g.fuera; });
+    var gastado = proy.reduce(function (s, g) { return s + g.monto; }, 0);
+    var inversion = gastado + terreno;
+    var pagos = [];
+    datos.contratos.forEach(function (c) { c.pagos.forEach(function (p) { if (p.fecha <= corte) pagos.push(p); }); });
+    var cobrado = pagos.reduce(function (s, p) { return s + p.pago; }, 0);
+    var porCobrar = datos.contratos.reduce(function (s, c) { return s + c.saldo; }, 0);
+    var ritmo = datos.contratos.filter(function (c) { return c.estado !== "pagado"; }).reduce(function (s, c) { return s + c.esperadoMes; }, 0);
+
+    // Serie mensual acumulada
+    var porMesG = {}, porMesC = {}, primero = L.iso(corte).slice(0, 7);
+    proy.forEach(function (g) { if (!g.fecha) return; var k = L.iso(g.fecha).slice(0, 7); porMesG[k] = (porMesG[k] || 0) + g.monto; if (k < primero) primero = k; });
+    pagos.forEach(function (p) { var k = L.iso(p.fecha).slice(0, 7); porMesC[k] = (porMesC[k] || 0) + p.pago; if (k < primero) primero = k; });
+    var ultimo = L.iso(corte).slice(0, 7), meses = [], k = primero;
+    while (k <= ultimo) { meses.push(k); k = sumaMeses(k, 1); }
+    var ag = terreno, ac = 0, serie = meses.map(function (m) { ag += porMesG[m] || 0; ac += porMesC[m] || 0; return { mes: m, inv: ag, cob: ac }; });
+    var cruce = null;
+    for (var i = 0; i < serie.length; i++) if (serie[i].cob >= serie[i].inv && serie[i].inv > 0) { cruce = serie[i].mes; break; }
+
+    // Titular
+    var t = document.getElementById("g-titular"); t.innerHTML = "";
+    if (cobrado >= inversion) {
+      t.append("Con lo cobrado ya se recuperó todo lo invertido" + (cruce ? ", desde " + mesLargo(cruce) : "") + ". Han entrado " + d0(cobrado - inversion) + " más de lo que se ha invertido.");
+    } else {
+      var falta = inversion - cobrado;
+      var txt = "Falta recuperar " + d0(falta) + " de lo invertido.";
+      if (ritmo > 0) txt += " Al ritmo esperado de cobro (" + d0(ritmo) + " al mes), se recuperaría hacia " + mesLargo(sumaMeses(ultimo, Math.ceil(falta / ritmo))) + " (estimado, si todos pagan según su plan y no hay gastos nuevos).";
+      t.append(txt);
+    }
+    t.append(el("small", null, terreno
+      ? "Incluye " + d0(terreno) + " del terreno y otras inversiones que escribió arriba. Lo que ha entrado incluye prima, abonos e intereses."
+      : "Ojo: todavía no incluye la compra del terreno. Escriba su costo arriba para ver la recuperación completa."));
+
+    var st = document.getElementById("g-stats"); st.innerHTML = "";
+    [
+      ["Invertido en el proyecto", d0(inversion), "Gastos anotados " + d0(gastado) + (terreno ? " + terreno " + d0(terreno) : "")],
+      ["Ha entrado por ventas", d0(cobrado), "Pagos de clientes hasta el corte"],
+      ["Recuperado", inversion ? Math.round(cobrado / inversion * 100) + "%" : "—", "de lo invertido"],
+      ["Por cobrar todavía", d0(porCobrar), "Saldo de los " + datos.contratos.length + " contratos"]
+    ].forEach(function (s) { var d = el("div", "stat"); d.append(el("div", "k", s[0]), el("div", "v", s[1]), el("div", "s", s[2])); st.append(d); });
+
+    graficaInversion(serie, cruce);
+
+    // Categorías
+    var cats = {};
+    proy.forEach(function (g) { (cats[g.categoria] = cats[g.categoria] || []).push(g); });
+    var orden = Object.keys(cats).map(function (n) { return { n: n, gs: cats[n], t: cats[n].reduce(function (s, g) { return s + g.monto; }, 0) }; })
+      .sort(function (a, b) { return b.t - a.t; });
+    var maxC = orden.length ? orden[0].t : 1, cb = document.getElementById("g-categorias"); cb.innerHTML = "";
+    orden.forEach(function (c) {
+      var d = el("details", "cat"), s = el("summary");
+      var bar = el("div", "barra-h"), fill = el("i"); fill.style.width = (c.t / maxC * 100) + "%"; bar.append(fill);
+      var nom = el("div"); nom.append(el("b", null, c.n), el("span", "s", " · " + c.gs.length));
+      s.append(nom, bar, el("div", "m", d0(c.t)), el("div", "p", Math.round(c.t / gastado * 100) + "%"));
+      d.append(s);
+      d.addEventListener("toggle", function () {
+        if (!d.open || d.dataset.ok) return; d.dataset.ok = "1";
+        var sc = el("div", "scroll"), tb = el("table"), hr = el("tr");
+        ["Fecha", "Descripción", "A nombre de", "Monto"].forEach(function (x, i) { hr.append(el("th", i === 3 ? "r" : null, x)); });
+        tb.append(hr);
+        c.gs.slice().sort(function (a, b) { return (a.fecha || 0) - (b.fecha || 0); }).forEach(function (g) {
+          var tr = el("tr"); tr.append(el("td", null, L.fechaCorta(g.fecha)), el("td", null, g.desc), el("td", null, g.quien), el("td", "r", L.dinero(g.monto))); tb.append(tr);
+        });
+        sc.append(tb); d.append(sc);
+      });
+      cb.append(d);
+    });
+
+    // A nombre de quién
+    var q = {}; proy.forEach(function (g) { q[g.quien] = (q[g.quien] || 0) + g.monto; });
+    var qb = document.getElementById("g-quien"); qb.innerHTML = "";
+    Object.keys(q).sort(function (a, b) { return q[b] - q[a]; }).forEach(function (n) {
+      var r = el("div", "renglon"); r.append(el("span", null, n + " · " + Math.round(q[n] / gastado * 100) + "%"), el("b", null, d0(q[n]))); qb.append(r);
+    });
+    var tq = el("div", "renglon total"); tq.append(el("span", null, "Total gastos del proyecto"), el("b", null, d0(gastado))); qb.append(tq);
+
+    var fb = document.getElementById("g-fuera"); fb.innerHTML = "";
+    if (!fuera.length) fb.append(el("p", "vacio", "Todo lo anotado es del proyecto."));
+    fuera.forEach(function (g) { var r = el("div", "renglon"); r.append(el("span", null, g.desc + " · " + L.fechaCorta(g.fecha)), el("b", null, d0(g.monto))); fb.append(r); });
+    if (fuera.length) { var tf = el("div", "renglon total"); tf.append(el("span", null, "Total"), el("b", null, d0(fuera.reduce(function (s, g) { return s + g.monto; }, 0)))); fb.append(tf); }
+  }
+
+  function graficaInversion(serie, cruce) {
+    var wrap = document.getElementById("g-graf"); wrap.innerHTML = "";
+    if (serie.length < 2) { wrap.append(el("p", "vacio", "Hace falta más de un mes de datos para la gráfica.")); return; }
+    var NS = "http://www.w3.org/2000/svg", W = 720, H = 270, ml = 62, mr = 112, mt = 14, mb = 30, iw = W - ml - mr, ih = H - mt - mb;
+    var max = Math.max.apply(null, serie.map(function (s) { return Math.max(s.inv, s.cob); }).concat([1]));
+    var paso = Math.pow(10, Math.floor(Math.log10(max / 4))); [1, 2, 2.5, 5, 10].some(function (f) { if (max / (paso * f) <= 4) { paso *= f; return true; } });
+    var top = Math.ceil(max / paso) * paso;
+    function x(i) { return ml + i * iw / (serie.length - 1); }
+    function y(v) { return mt + ih - v / top * ih; }
+    function s(tag, a, txt) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; }
+    var svg = s("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Invertido acumulado contra cobrado acumulado por mes" });
+    for (var v = 0; v <= top + 0.5; v += paso) {
+      svg.append(s("line", { x1: ml, x2: ml + iw, y1: y(v), y2: y(v), stroke: "#E6E1D6", "stroke-width": 1 }));
+      svg.append(s("text", { x: ml - 8, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "#5D6A63" }, v >= 1000 ? "$" + Math.round(v / 1000) + "k" : "$" + v));
+    }
+    serie.forEach(function (p, i) {
+      if ((p.mes.slice(5) === "01" && i > 5) || i === 0) svg.append(s("text", { x: x(i), y: H - 10, "text-anchor": i === 0 ? "start" : "middle", "font-size": 11, fill: "#5D6A63" }, i === 0 ? MES_C[+p.mes.slice(5) - 1] + " " + p.mes.slice(0, 4) : p.mes.slice(0, 4)));
+    });
+    function linea(campo, color) {
+      var d = serie.map(function (p, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p[campo]).toFixed(1); }).join(" ");
+      svg.append(s("path", { d: d, fill: "none", stroke: color, "stroke-width": 2.2, "stroke-linejoin": "round" }));
+    }
+    linea("inv", "#5E8F2A"); linea("cob", "#004B84");
+    var u = serie[serie.length - 1], n = serie.length - 1;
+    var yi = y(u.inv), yc = y(u.cob); if (Math.abs(yi - yc) < 16) { if (yi > yc) yi = yc + 16; else yc = yi + 16; }
+    svg.append(s("text", { x: x(n) + 8, y: yc + 4, "font-size": 12, "font-weight": 700, fill: "#004B84" }, d0(u.cob)));
+    svg.append(s("text", { x: x(n) + 8, y: yi + 4, "font-size": 12, "font-weight": 700, fill: "#5E8F2A" }, d0(u.inv)));
+    if (cruce) {
+      var ic = serie.findIndex(function (p) { return p.mes === cruce; });
+      svg.append(s("circle", { cx: x(ic), cy: y(serie[ic].cob), r: 6, fill: "#fff", stroke: "#004B84", "stroke-width": 2.5 }));
+      svg.append(s("text", { x: x(ic) - 10, y: y(serie[ic].cob) - 12, "text-anchor": "end", "font-size": 12, fill: "#1E2A24" }, "Se recuperó lo invertido: " + MES_C[+cruce.slice(5) - 1] + " " + cruce.slice(0, 4)));
+    }
+    var guia = s("line", { y1: mt, y2: mt + ih, stroke: "#8D978F", "stroke-dasharray": "3 3", visibility: "hidden" });
+    svg.append(guia);
+    var zona = s("rect", { x: ml, y: mt, width: iw, height: ih, fill: "transparent" });
+    svg.append(zona);
+    wrap.append(svg);
+    var tip = el("div", "tip"); tip.hidden = true; wrap.append(tip);
+    function mover(ev) {
+      var r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W;
+      var i = Math.max(0, Math.min(n, Math.round((px - ml) / iw * n))), p = serie[i];
+      guia.setAttribute("x1", x(i)); guia.setAttribute("x2", x(i)); guia.setAttribute("visibility", "visible");
+      tip.hidden = false; tip.textContent = "";
+      tip.append(el("div", null, mesLargo(p.mes)), el("div", null, "Ha entrado: " + d0(p.cob)), el("div", null, "Invertido: " + d0(p.inv)));
+      tip.style.left = (x(i) / W * r.width) + "px"; tip.style.top = "8px";
+    }
+    zona.addEventListener("mousemove", mover);
+    zona.addEventListener("mouseleave", function () { tip.hidden = true; guia.setAttribute("visibility", "hidden"); });
+  }
+
+  function pintarRevisarGastos() {
+    var box = document.getElementById("revisar-gastos"); box.innerHTML = "";
+    if (!gastosDatos || !gastosDatos.avisos.length) return;
+    box.append(el("h3", null, "Hoja «Gastos» · " + gastosDatos.avisos.length + " por confirmar"));
+    var ul = el("ul", "revisar");
+    gastosDatos.avisos.forEach(function (a) { var li = el("li"); li.append(el("div", "motivo", a.texto)); ul.append(li); });
+    box.append(ul);
+  }
+
+  document.getElementById("terreno").addEventListener("input", function (e) {
+    var v = Math.max(0, Number(e.target.value) || 0);
+    try { if (v) localStorage.setItem(CLAVE_TERRENO, String(v)); else localStorage.removeItem(CLAVE_TERRENO); } catch (err) {}
+    if (datos) pintarGastos();
+  });
+
   // ── Pestañas y controles ──
   function tab(cual) {
-    ["cobranza", "estados", "revisar"].forEach(function (k) {
+    ["cobranza", "estados", "gastos", "revisar"].forEach(function (k) {
       document.getElementById("t-" + k).setAttribute("aria-selected", k === cual ? "true" : "false");
       document.getElementById("p-" + k).hidden = k !== cual;
     });
   }
-  ["cobranza", "estados", "revisar"].forEach(function (k) { document.getElementById("t-" + k).addEventListener("click", function () { tab(k); }); });
+  ["cobranza", "estados", "gastos", "revisar"].forEach(function (k) { document.getElementById("t-" + k).addEventListener("click", function () { tab(k); }); });
   document.querySelectorAll(".seg button").forEach(function (b) {
     b.addEventListener("click", function () {
       filtro = b.dataset.f;

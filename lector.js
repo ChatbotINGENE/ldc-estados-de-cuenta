@@ -226,8 +226,75 @@
     return { contratos: contratos, libres: libres };
   }
 
+  // ── Hoja «Gastos»: A fecha · B descripción · C monto · D a nombre de quién ──
+  // Gastos que no son del proyecto (se muestran aparte y no cuentan como inversión).
+  var FUERA = /pr[eé]stamo a bazar|compra veh[ií]culo|pet scan/i;
+  var CATEGORIAS = [
+    ["Comisiones de venta", /comisi/i],
+    ["Viajes", /viaje/i],
+    ["Calles y terracería", /calle|terracer|balastad|baden|compactaci/i],
+    ["Topografía y mojones", /amojon|mojon|levantamiento|replante|topograf|trazo|linea divisoria/i],
+    ["Planos y trámites (CNR)", /cnr|plano|registral|escritura|digitalizaci/i],
+    ["Chapoda y limpieza", /chapod|limpieza|mozos/i],
+    ["Impuestos y contabilidad", /impuesto|contabilidad/i],
+    ["Diseño y rotulación", /dise[ñn]o|rotulaci/i],
+    ["Préstamos a personas", /pr[eé]stamo/i],
+    ["Promoción y redes", /redes|publicidad/i]
+  ];
+
+  function leerGastos(libro, corte) {
+    var ws = libro.Sheets["Gastos"];
+    if (!ws) return null;
+    var rango = XLSX.utils.decode_range(ws["!ref"] || "A1:D1");
+    function val(r, c) { var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== "" ? cell.v : null; }
+    var gastos = [], avisos = [];
+    for (var r = rango.s.r; r <= rango.e.r; r++) {
+      var fRaw = val(r, 0), desc = val(r, 1), monto = val(r, 2), quien = val(r, 3);
+      if (fRaw === null && desc === null && monto === null) continue;
+      var fila = r + 1, fecha = aFecha(fRaw), d = String(desc == null ? "" : desc).trim();
+      if (!fecha) { avisos.push({ fila: fila, texto: "Fila " + fila + " («" + (d || "sin descripción") + "»): falta la fecha o no se entiende.", frena: false }); }
+      if (typeof monto !== "number") { avisos.push({ fila: fila, texto: "Fila " + fila + " («" + (d || "sin descripción") + "»): falta el monto.", frena: false }); continue; }
+      if (!d) avisos.push({ fila: fila, texto: "Fila " + fila + ": gasto de $" + f0(monto) + " sin descripción.", frena: false });
+      if (fecha && fecha > corte) avisos.push({ fila: fila, texto: "Fila " + fila + " («" + d + "»): la fecha " + fechaCorta(fecha) + " es posterior a la fecha del Excel.", frena: false });
+      var cat = "Otros";
+      for (var i = 0; i < CATEGORIAS.length; i++) if (CATEGORIAS[i][1].test(d)) { cat = CATEGORIAS[i][0]; break; }
+      var fuera = FUERA.test(d);
+      if (cat === "Préstamos a personas" && !fuera)
+        avisos.push({ fila: fila, texto: "Fila " + fila + ": «" + d + "» por $" + f0(monto) + ". ¿Es un gasto del proyecto o un préstamo que se va a devolver?", frena: false });
+      gastos.push({ fila: fila, fecha: fecha, desc: d, monto: monto, quien: String(quien == null ? "" : quien).trim() || "Sin nombre", categoria: fuera ? "No es del proyecto" : cat, fuera: fuera });
+    }
+    // Posibles duplicados: misma fecha, misma descripción y mismo monto.
+    var grupos = {};
+    gastos.forEach(function (g) {
+      if (!g.fecha) return;
+      var k = iso(g.fecha) + "|" + g.desc.toLowerCase() + "|" + g.monto;
+      (grupos[k] = grupos[k] || []).push(g);
+    });
+    // Si el mismo gasto se repite en muchas fechas (p. ej. viajes de ida y vuelta), va en un solo aviso.
+    var porGasto = {};
+    Object.keys(grupos).forEach(function (k) {
+      var gs = grupos[k]; if (gs.length < 2) return;
+      var kk = gs[0].desc.toLowerCase() + "|" + gs[0].monto;
+      (porGasto[kk] = porGasto[kk] || []).push(gs);
+    });
+    Object.keys(porGasto).forEach(function (kk) {
+      var sets = porGasto[kk], g0 = sets[0][0];
+      var extra = sets.reduce(function (s, gs) { return s + (gs.length - 1) * g0.monto; }, 0);
+      if (sets.length === 1) {
+        var gs = sets[0];
+        avisos.push({ fila: g0.fila, frena: false, texto: "«" + g0.desc + "» por $" + f0(g0.monto) + " aparece " + gs.length + " veces el " + fechaCorta(g0.fecha) +
+          " (filas " + gs.map(function (g) { return g.fila; }).join(", ") + "). ¿Son gastos distintos o está repetido?" });
+      } else {
+        avisos.push({ fila: g0.fila, frena: false, texto: "«" + g0.desc + "» por $" + f0(g0.monto) + " aparece más de una vez el mismo día en " + sets.length +
+          " fechas (" + sets.map(function (gs) { return fechaCorta(gs[0].fecha); }).join(", ") + "). Si son ida y vuelta o dos personas, está bien; si no, hay $" + f0(extra) + " repetidos." });
+      }
+    });
+    avisos.sort(function (a, b) { return a.fila - b.fila; });
+    return { gastos: gastos, avisos: avisos };
+  }
+
   window.LDC = {
-    leerLibro: leerLibro, SUPUESTOS: SUPUESTOS, NOMBRE_GRUPO: NOMBRE_GRUPO, MESES: MESES,
+    leerLibro: leerLibro, leerGastos: leerGastos, SUPUESTOS: SUPUESTOS, NOMBRE_GRUPO: NOMBRE_GRUPO, MESES: MESES,
     iso: iso, aFecha: aFecha, sumarMeses: sumarMeses, fechaCorta: fechaCorta, fechaLarga: fechaLarga, dinero: dinero
   };
 })();
