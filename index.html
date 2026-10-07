@@ -36,6 +36,13 @@ body { margin: 0; background: var(--fondo); color: var(--tinta); font: 15.5px/1.
 .drop span { color: var(--gris); }
 .drop input { display: none; }
 .privado { text-align: center; color: var(--gris); font-size: 13.5px; margin: 8px 0 0; }
+.que-hay { margin-top: 22px; }
+.que-hay > p { text-align: center; color: var(--gris); margin: 0 0 10px; font-size: 14.5px; }
+.tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tres div { background: var(--sup); border: 1px solid var(--linea); border-top: 4px solid var(--azul); border-radius: 0 0 12px 12px; padding: 14px 16px; display: grid; gap: 4px; }
+.tres b { color: var(--azul); font-size: 16px; }
+.tres span { color: var(--gris); font-size: 14px; }
+@media (max-width: 700px) { .tres { grid-template-columns: 1fr; } }
 .aviso-error { background: var(--mal-bg); color: var(--mal); border-radius: 12px; padding: 12px 14px; }
 
 .cargado { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; background: var(--sup); border: 1px solid var(--linea); border-radius: 14px; padding: 12px 16px; }
@@ -163,6 +170,14 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
       <input type="file" id="archivo" accept=".xlsx,.xls">
     </label>
     <p class="privado">El Excel no se sube a internet: se lee aquí mismo, en su computadora.</p>
+    <div class="que-hay">
+      <p>Al cargar el Excel se abren tres herramientas:</p>
+      <div class="tres">
+        <div><b>Cobranza</b><span>Quién va al día, quién está atrasado, cuánto y a quién llamar primero.</span></div>
+        <div><b>Estados de cuenta</b><span>El PDF de cada cliente con el logo, listo para enviar.</span></div>
+        <div><b>Revisar en el Excel</b><span>Lo que no cuadra en las hojas, para corregirlo antes de enviar.</span></div>
+      </div>
+    </div>
   </section>
 
   <div class="aviso-error" id="error" hidden></div>
