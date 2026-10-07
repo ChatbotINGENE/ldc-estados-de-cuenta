@@ -9,7 +9,7 @@
   var PRIMA = /prima|reserv|complemento|dep[oó]sito/i;
   var AJENO = /chapoda|reparaci|casa|mantenim|limpieza/i;
   // Avisos que no cambian el saldo: el PDF sí sale.
-  var NO_BLOQUEA = [/la fecha está escrita como texto/, /La prima en la ficha es igual al precio/];
+  var NO_BLOQUEA = [/la fecha está escrita como texto/, /La prima en la ficha es igual al precio/, /La cuota anotada/];
   var MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
   var PAC = "America/Los_Angeles", MTN = "America/Denver", CEN = "America/Chicago", EST = "America/New_York";
@@ -68,6 +68,16 @@
   }
   function f0(x) { return Number(x).toLocaleString("en-US", { maximumFractionDigits: 0 }); }
   function num(v) { return typeof v === "number" ? v : null; }
+
+  function cuotaFija(monto, tasaAnual, meses) {
+    var r = tasaAnual / 12;
+    return r ? monto * r / (1 - Math.pow(1 + r, -meses)) : monto / meses;
+  }
+  // Lotes que cubre un contrato, según el nombre de la hoja (LDCG14G15 → G 14 y 15).
+  function lotesDeHoja(codigo) {
+    var m = codigo.toUpperCase().match(/^LDC([A-Z])/);
+    return { poligono: m ? m[1] : "", lotes: (codigo.match(/\d+/g) || []).map(Number) };
+  }
 
   function leerHoja(ws, nombreHoja, corte) {
     var codigo = nombreHoja.split(/\s+/)[0];
@@ -209,6 +219,13 @@
       }
     }
 
+    // La cuota del crédito debe salir del precio menos la prima, a 10 años al 15% (cuota fija).
+    if (plan === "credito" && cuota && plazoM && precio && primaEnc != null && primaEnc < precio) {
+      var debida = cuotaFija(precio - primaEnc, 0.15, plazoM);
+      if (Math.abs(debida - cuota) > 1)
+        revisar.push("La cuota anotada ($" + cuota.toFixed(2) + ") no corresponde al precio y la prima de la ficha: debería ser $" + debida.toFixed(2) + ".");
+    }
+
     c2.estado = estado; c2.etiqueta = etiqueta; c2.atraso = atraso; c2.diasAtraso = diasAtraso;
     c2.proximo = proximo; c2.vence = vence; c2.esperadoMes = esperadoMes; c2.flujo = flujo;
     c2.recibidoMes = pc.filter(function (p) { return claveMes(p.fecha) === claveMes(corte); }).reduce(function (s, p) { return s + p.pago; }, 0);
@@ -293,8 +310,63 @@
     return { gastos: gastos, avisos: avisos };
   }
 
+  // ── Hoja «Lista de precios», cruzada con los estados de cuenta ──
+  function leerInventario(libro, contratos) {
+    var ws = libro.Sheets["Lista de precios"];
+    if (!ws) return null;
+    var rango = XLSX.utils.decode_range(ws["!ref"] || "A1:I1");
+    function val(r, c) { var cell = ws[XLSX.utils.encode_cell({ r: r, c: c })]; return cell && cell.v !== "" ? cell.v : null; }
+    var lotes = [], avisos = [], porClave = {};
+    for (var r = rango.s.r + 1; r <= rango.e.r; r++) {
+      var pol = val(r, 0), n = val(r, 1);
+      if (pol == null || n == null) continue;
+      var bloqueado = /bloque/i.test(String(val(r, 2) || "")) || /bloque/i.test(String(n));
+      var l = {
+        fila: r + 1, poligono: String(pol).trim().toUpperCase(), lote: typeof n === "number" ? Math.trunc(n) : parseInt(n, 10),
+        area: num(val(r, 2)), lista: num(val(r, 3)), venta: num(val(r, 4)), prima: num(val(r, 5)),
+        vendedor: val(r, 6) ? String(val(r, 6)).trim() : "", plan: val(r, 7) ? String(val(r, 7)).trim() : "",
+        cancelado: /pagad|cancel/i.test(String(val(r, 8) || "")), bloqueado: bloqueado, contrato: null
+      };
+      if (isNaN(l.lote)) continue;
+      lotes.push(l); porClave[l.poligono + l.lote] = l;
+    }
+    // Cruce con los contratos (el estado de cuenta manda: si hay hoja con cliente, está vendido).
+    var difArea = {};
+    contratos.forEach(function (c) {
+      var h = lotesDeHoja(c.codigo), ls = [];
+      h.lotes.forEach(function (n) {
+        var l = porClave[h.poligono + n];
+        if (!l) { avisos.push({ texto: "La hoja " + c.codigo + " (" + c.cliente + ") es del lote " + h.poligono + "-" + n + ", que no está en la lista de precios." }); return; }
+        l.contrato = c; ls.push(l);
+        if (l.venta == null) avisos.push({ texto: "Lote " + l.poligono + "-" + l.lote + ": tiene estado de cuenta (" + c.cliente + ") pero en la lista de precios no tiene precio de venta." });
+        if (l.bloqueado) avisos.push({ texto: "Lote " + l.poligono + "-" + l.lote + ": la lista lo marca BLOQUEADO pero tiene estado de cuenta (" + c.cliente + ")." });
+        if (l.area != null && typeof c.area === "number" && h.lotes.length === 1 && Math.abs(l.area - c.area) > 0.5) {
+          var ka = l.area.toFixed(2) + "|" + c.area.toFixed(2);
+          (difArea[ka] = difArea[ka] || []).push(l.poligono + "-" + l.lote);
+        }
+        if (l.cancelado && c.saldo > 1) avisos.push({ texto: "Lote " + l.poligono + "-" + l.lote + ": la lista dice «Pagado» pero el estado de cuenta tiene saldo de $" + f0(c.saldo) + "." });
+        if (!l.cancelado && c.saldo <= 1) avisos.push({ texto: "Lote " + l.poligono + "-" + l.lote + ": ya está pagado según el estado de cuenta, pero la lista no lo marca como «Pagado»." });
+      });
+      var ventaLista = ls.reduce(function (s, l) { return s + (l.venta || 0); }, 0);
+      if (ls.length && ventaLista && Math.abs(ventaLista - c.precio) > 1)
+        avisos.push({ texto: "Lote " + h.poligono + "-" + h.lotes.join("/") + ": el precio de venta es $" + f0(ventaLista) + " en la lista y $" + f0(c.precio) + " en el estado de cuenta." });
+    });
+    // Las diferencias de área iguales van juntas: el estado de cuenta (lo que ve el cliente) y la lista no coinciden.
+    Object.keys(difArea).forEach(function (ka) {
+      var v = ka.split("|"), ls2 = difArea[ka];
+      avisos.unshift({ texto: (ls2.length > 1 ? "Lotes " + ls2.join(", ") + ": el área" : "Lote " + ls2[0] + ": el área") + " es " + v[0] + " v² en la lista de precios y " + v[1] +
+        " v² en " + (ls2.length > 1 ? "sus estados de cuenta" : "su estado de cuenta") + ". El estado de cuenta es lo que recibe el cliente: ¿cuál es la correcta?" });
+    });
+    lotes.forEach(function (l) {
+      if (l.venta != null && !l.contrato && !l.bloqueado)
+        avisos.push({ texto: "Lote " + l.poligono + "-" + l.lote + ": la lista dice que se vendió en $" + f0(l.venta) + (l.vendedor ? " (" + l.vendedor + ")" : "") + ", pero no hay estado de cuenta con cliente." });
+      l.estado = l.bloqueado ? "bloqueado" : (l.contrato || l.venta != null) ? "vendido" : "disponible";
+    });
+    return { lotes: lotes, avisos: avisos };
+  }
+
   window.LDC = {
-    leerLibro: leerLibro, leerGastos: leerGastos, SUPUESTOS: SUPUESTOS, NOMBRE_GRUPO: NOMBRE_GRUPO, MESES: MESES,
+    leerLibro: leerLibro, leerGastos: leerGastos, leerInventario: leerInventario, cuotaFija: cuotaFija, SUPUESTOS: SUPUESTOS, NOMBRE_GRUPO: NOMBRE_GRUPO, MESES: MESES,
     iso: iso, aFecha: aFecha, sumarMeses: sumarMeses, fechaCorta: fechaCorta, fechaLarga: fechaLarga, dinero: dinero
   };
 })();
