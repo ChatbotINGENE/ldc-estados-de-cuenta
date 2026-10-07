@@ -38,7 +38,7 @@ body { margin: 0; background: var(--fondo); color: var(--tinta); font: 15.5px/1.
 .privado { text-align: center; color: var(--gris); font-size: 13.5px; margin: 8px 0 0; }
 .que-hay { margin-top: 22px; }
 .que-hay > p { text-align: center; color: var(--gris); margin: 0 0 10px; font-size: 14.5px; }
-.tres { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 1000px) { .tres { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tres div:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 .tres div { background: var(--sup); border: 1px solid var(--linea); border-top: 4px solid var(--azul); border-radius: 0 0 12px 12px; padding: 14px 16px; display: grid; gap: 4px; }
 .tres b { color: var(--azul); font-size: 16px; }
@@ -177,6 +177,21 @@ td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
 .renglon:first-child { border-top: 0; }
 .renglon b { font-family: var(--num); font-weight: 600; white-space: nowrap; }
 .renglon.total { border-top: 2px solid var(--tinta); font-weight: 700; }
+.calc-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: end; }
+.calc-form label { display: grid; gap: 4px; font-size: 13.5px; color: var(--gris); font-weight: 600; }
+.calc-form select { font: 15px var(--letra); padding: 9px 10px; border: 1px solid var(--linea); border-radius: 10px; background: var(--sup); color: var(--tinta); min-width: 0; width: 100%; }
+.calc-form .monto-input input { width: 100%; font-size: 16px; }
+@media (max-width: 720px) { .calc-form { grid-template-columns: 1fr; } }
+.calc-res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 4px; }
+@media (max-width: 720px) { .calc-res { grid-template-columns: 1fr; } }
+.calc-caja { border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; }
+.calc-caja.fuerte { background: var(--azul); border-color: var(--azul); color: #fff; }
+.calc-caja h3 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: .02em; }
+.calc-caja .grande { font-family: var(--num); font-size: 30px; font-weight: 600; line-height: 1.2; }
+.calc-caja .renglon { border-color: rgba(0,0,0,.08); }
+.calc-caja.fuerte .renglon { border-color: rgba(255,255,255,.25); }
+.calc-caja.fuerte .renglon span { color: #DCE8F3; }
+.aviso-amarillo { background: var(--alerta-bg); color: var(--alerta); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
 .leyenda-chips { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13.5px; color: var(--gris); }
 .leyenda-chips span { display: flex; align-items: center; gap: 6px; }
 .chip-m { display: inline-block; width: 16px; height: 16px; border-radius: 4px; }
@@ -226,6 +241,7 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
       <div class="tres">
         <div><b>Cobranza</b><span>Quién va al día, quién está atrasado, cuánto y a quién llamar primero.</span></div>
         <div><b>Estados de cuenta</b><span>El PDF de cada cliente con el logo, listo para enviar.</span></div>
+        <div><b>Calculadora</b><span>Cuánto debe un cliente para liquidar hoy y qué pasa si abona más.</span></div>
         <div><b>Inventario</b><span>Qué lotes quedan, cuánto valen, descuentos dados y lista de precios en PDF.</span></div>
         <div><b>Gastos e inversión</b><span>Cuánto se ha invertido, en qué y cuánto se ha recuperado con lo cobrado.</span></div>
         <div><b>Revisar en el Excel</b><span>Lo que no cuadra en las hojas, para corregirlo a tiempo.</span></div>
@@ -249,6 +265,7 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
       <div class="tabs" role="tablist" aria-label="Herramientas">
         <button role="tab" id="t-cobranza" aria-controls="p-cobranza" aria-selected="true">Cobranza</button>
         <button role="tab" id="t-estados" aria-controls="p-estados" aria-selected="false">Estados de cuenta</button>
+        <button role="tab" id="t-calculadora" aria-controls="p-calculadora" aria-selected="false">Calculadora</button>
         <button role="tab" id="t-inventario" aria-controls="p-inventario" aria-selected="false">Inventario</button>
         <button role="tab" id="t-gastos" aria-controls="p-gastos" aria-selected="false">Gastos e inversión</button>
         <button role="tab" id="t-revisar" aria-controls="p-revisar" aria-selected="false">Revisar en el Excel<span class="n" id="n-revisar"></span></button>
@@ -298,6 +315,20 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
           </div>
           <div class="nota-roja" id="nota-frenados" hidden></div>
           <ul class="estados" id="estados"></ul>
+        </div>
+      </section>
+
+      <!-- CALCULADORA -->
+      <section class="panel" id="p-calculadora" role="tabpanel" aria-labelledby="t-calculadora" hidden>
+        <div class="card">
+          <h2>¿Cuánto debe para liquidar? ¿Qué pasa si abona más?</h2>
+          <p class="sub">Calcula como el Excel: en los créditos, interés del 15% anual por cada día desde el último pago anotado.</p>
+          <div class="calc-form">
+            <label for="c-cliente">Cliente y lote<select id="c-cliente"></select></label>
+            <label for="c-fecha">Fecha del pago<input type="date" id="c-fecha"></label>
+            <label for="c-abono">Abono (opcional)<div class="monto-input"><span>$</span><input type="number" id="c-abono" min="0" step="50" placeholder="0" inputmode="decimal"></div></label>
+          </div>
+          <div id="c-resultado"></div>
         </div>
       </section>
 
@@ -442,7 +473,7 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
     var conAviso = datos.contratos.filter(function (c) { return c.revisar.length; }).length + (gastosDatos ? gastosDatos.avisos.length : 0) + (invDatos ? invDatos.avisos.length : 0);
     document.getElementById("n-revisar").textContent = conAviso || "";
     document.getElementById("n-revisar").hidden = !conAviso;
-    pintarStats(); pintarLista(); pintarFlujo(); pintarEstados(); pintarRevisar(); pintarInventario(); pintarGastos(); pintarRevisarGastos();
+    pintarStats(); pintarLista(); pintarFlujo(); pintarEstados(); pintarRevisar(); pintarCalculadora(); pintarInventario(); pintarGastos(); pintarRevisarGastos();
   }
 
   // ── Cobranza ──
@@ -820,6 +851,82 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
     zona.addEventListener("mouseleave", function () { tip.hidden = true; guia.setAttribute("visibility", "hidden"); });
   }
 
+  // ── Calculadora de liquidación ──
+  var TASA = 0.15;
+  function pintarCalculadora() {
+    var sel = document.getElementById("c-cliente"), antes = sel.value; sel.innerHTML = "";
+    datos.contratos.filter(function (c) { return c.saldo > 1; })
+      .sort(function (a, b) { return a.cliente.localeCompare(b.cliente); })
+      .forEach(function (c) { var o = el("option", null, c.cliente + " · lote " + c.poligono + "-" + c.lote); o.value = c.codigo; sel.append(o); });
+    if (antes && sel.querySelector('option[value="' + antes + '"]')) sel.value = antes;
+    var f = document.getElementById("c-fecha"); if (!f.value) { var h = new Date(); f.value = L.iso(new Date(Date.UTC(h.getFullYear(), h.getMonth(), h.getDate()))); }
+    calcular();
+  }
+
+  function calcular() {
+    var box = document.getElementById("c-resultado"); box.innerHTML = "";
+    var c = datos && datos.contratos.find(function (x) { return x.codigo === document.getElementById("c-cliente").value; });
+    if (!c) { box.append(el("p", "vacio", "No hay contratos con saldo.")); return; }
+    var fecha = L.aFecha(document.getElementById("c-fecha").value) || corte;
+    var abono = Math.max(0, Number(document.getElementById("c-abono").value) || 0);
+    var credito = c.plan === "credito";
+    // Último saldo anotado y su fecha (lo que usa el Excel para el siguiente interés).
+    var conSaldo = c.pagos.filter(function (p) { return p.saldo != null && p.fecha <= fecha; });
+    var ult = conSaldo.length ? conSaldo[conSaldo.length - 1] : null;
+    var saldo = ult ? Math.max(0, ult.saldo) : c.saldo, desde = ult ? ult.fecha : c.inicio;
+    var dias = desde ? Math.max(0, Math.round((fecha - desde) / 86400000)) : 0;
+    var interes = credito ? saldo * TASA / 365 * dias : 0;
+    var liquidar = saldo + interes;
+
+    if (c.bloqueos.length) box.append(el("div", "aviso-amarillo", "Ojo: la hoja de este cliente tiene algo que no cuadra (vea «Revisar en el Excel»). El cálculo usa el saldo tal como está anotado."));
+    if (fecha > corte) box.append(el("div", "aviso-amarillo", "El Excel tiene datos al " + L.fechaCorta(corte) + ". Si el cliente pagó después, esos pagos no están incluidos."));
+    if (fecha < (desde || fecha)) box.append(el("div", "aviso-amarillo", "La fecha es anterior al último pago anotado."));
+
+    var res = el("div", "calc-res");
+    var a = el("div", "calc-caja fuerte");
+    a.append(el("h3", null, "Para liquidar todo el " + L.fechaCorta(fecha)), el("div", "grande", L.dinero(liquidar)));
+    function ren(caja, k, v) { var r = el("div", "renglon"); r.append(el("span", null, k), el("b", null, v)); caja.append(r); }
+    ren(a, "Saldo anotado" + (desde ? " al " + L.fechaCorta(desde) : ""), L.dinero(saldo));
+    if (credito) ren(a, "Intereses de " + dias + " días (15% anual)", L.dinero(interes));
+    else ren(a, "Intereses", "No aplica: plan sin intereses");
+    res.append(a);
+
+    var b = el("div", "calc-caja");
+    if (!abono) {
+      b.append(el("h3", null, "Si abona una cantidad"), el("p", "vacio", "Escriba un monto en «Abono» para ver cómo queda su saldo."));
+    } else if (abono >= liquidar) {
+      b.append(el("h3", null, "Con un pago de " + L.dinero(abono)), el("div", "grande", "Liquida el lote"));
+      if (abono - liquidar > 0.5) ren(b, "Le sobran", L.dinero(abono - liquidar));
+    } else {
+      var aCap = abono - interes, nuevo = saldo - Math.max(0, aCap);
+      b.append(el("h3", null, "Si abona " + L.dinero(abono) + " el " + L.fechaCorta(fecha)), el("div", "grande", L.dinero(nuevo)));
+      b.append(el("div", "s", "Saldo después del abono"));
+      if (credito) {
+        ren(b, "Va a intereses", L.dinero(Math.min(abono, interes)));
+        ren(b, "Va a capital", L.dinero(Math.max(0, aCap)));
+        if (aCap < 0) b.append(el("div", "aviso-amarillo", "El abono no alcanza a cubrir los intereses de esos días; el saldo no baja."));
+        if (c.cuota) {
+          var r = TASA / 12;
+          var meses = function (S) { return c.cuota > S * r ? Math.ceil(-Math.log(1 - r * S / c.cuota) / Math.log(1 + r)) : null; };
+          var m1 = meses(nuevo);
+          if (m1) ren(b, "Con la cuota de " + L.dinero(c.cuota) + ", le faltarían unos", m1 + " meses");
+        }
+      } else ren(b, "Todo va a capital", L.dinero(abono));
+    }
+    res.append(b);
+    box.append(res);
+
+    var copiar = el("button", "chico", "Copiar resumen para el cliente"); copiar.type = "button"; copiar.style.justifySelf = "start";
+    copiar.addEventListener("click", function () {
+      var t = "Lomas de California · lote " + c.poligono + "-" + c.lote + "\nPara liquidar su lote el " + L.fechaCorta(fecha) + ": " + L.dinero(liquidar) +
+        (credito ? " (saldo " + L.dinero(saldo) + " + intereses " + L.dinero(interes) + ")" : "") + ".";
+      if (abono && abono < liquidar) t += "\nSi abona " + L.dinero(abono) + ", su saldo queda en " + L.dinero(saldo - Math.max(0, abono - interes)) + ".";
+      try { navigator.clipboard.writeText(t).then(function () { copiar.textContent = "Copiado"; }); } catch (e) {}
+    });
+    box.append(copiar);
+  }
+  ["c-cliente", "c-fecha", "c-abono"].forEach(function (id) { document.getElementById(id).addEventListener("input", function () { if (datos) calcular(); }); });
+
   // ── Inventario ──
   var loteSel = null;
   function estadoChip(l) { return l.estado !== "vendido" ? l.estado : (l.contrato && l.contrato.saldo > 1) || (!l.contrato && !l.cancelado) ? "pagando" : "pagado"; }
@@ -959,12 +1066,12 @@ footer { color: var(--tenue); font-size: 12.5px; text-align: center; }
 
   // ── Pestañas y controles ──
   function tab(cual) {
-    ["cobranza", "estados", "inventario", "gastos", "revisar"].forEach(function (k) {
+    ["cobranza", "estados", "calculadora", "inventario", "gastos", "revisar"].forEach(function (k) {
       document.getElementById("t-" + k).setAttribute("aria-selected", k === cual ? "true" : "false");
       document.getElementById("p-" + k).hidden = k !== cual;
     });
   }
-  ["cobranza", "estados", "inventario", "gastos", "revisar"].forEach(function (k) { document.getElementById("t-" + k).addEventListener("click", function () { tab(k); }); });
+  ["cobranza", "estados", "calculadora", "inventario", "gastos", "revisar"].forEach(function (k) { document.getElementById("t-" + k).addEventListener("click", function () { tab(k); }); });
   document.querySelectorAll(".seg button").forEach(function (b) {
     b.addEventListener("click", function () {
       filtro = b.dataset.f;
